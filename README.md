@@ -36,17 +36,30 @@ A notifier application for myVAILLANT schedule changes.
    recipient2@example.com
    ```
 
-## Usage
+## Docker Usage
 
-Run the script manually:
+1. **Build and Run:**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Run in Background (Cron alternative):**
+   The container exits after running once. To run periodically, use `cron` on the host:
+   ```bash
+   0 * * * * cd /path/to/vinotifier && docker-compose up >> vinotifier.log 2>&1
+   ```
+
+## Troubleshooting
+
+If you suspect connection issues, try running the helper scripts manually (ensure `.env` is loaded):
+
+**1. Check myVAILLANT connection:**
 ```bash
-python3 vinotifier.py
+python3 check_connection.py
 ```
 
-## Scheduling (Cron)
-
-To check every hour, add this to your crontab (`crontab -e`):
-
+**2. Check Email connection:**
 ```bash
-0 * * * * cd /path/to/vinotifier && python3 vinotifier.py >> vinotifier.log 2>&1
+python3 check_email.py
 ```
+This script attempts to send a test email to the SMTP user address.

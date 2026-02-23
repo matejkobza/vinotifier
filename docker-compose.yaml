@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  vinotifier:
+    build: .
+    volumes:
+      - ./emails.csv:/app/emails.csv
+      - ./last_schedule.json:/app/last_schedule.json
+    env_file:
+      - .env

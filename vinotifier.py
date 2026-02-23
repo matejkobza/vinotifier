@@ -51,8 +51,10 @@ def send_email(subject, body, recipients):
     msg['To'] = ", ".join(recipients)
 
     try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+            server.ehlo()
             server.starttls()
+            server.ehlo()
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(SENDER_EMAIL, recipients, msg.as_string())
         print(f"Email sent to {recipients}")
@@ -63,7 +65,7 @@ async def get_current_schedule():
     if not MYVAILLANT_USER or not MYVAILLANT_PASS:
         raise ValueError("Missing MYVAILLANT_USER or MYVAILLANT_PASS env vars")
 
-    async with MyPyllantAPI(MYVAILLANT_USER, MYVAILLANT_PASS, MYVAILLANT_COUNTRY, MYVAILLANT_BRAND) as api:
+    async with MyPyllantAPI(MYVAILLANT_USER, MYVAILLANT_PASS, MYVAILLANT_BRAND, MYVAILLANT_COUNTRY) as api:
         systems = []
         async for system in api.get_systems():
             systems.append(system)
@@ -75,7 +77,7 @@ async def get_current_schedule():
         for system in systems:
             for zone in system.zones:
                 if zone.heating:
-                    program = zone.heating.time_program
+                    program = zone.heating.time_program_heating
                     # Helper to serialize time program list
                     def serialize_program(day_program):
                         # Handle potential attribute variations
