@@ -21,6 +21,8 @@ A notifier application for myVAILLANT schedule changes.
    export MYVAILLANT_PASS="your_password"
    export MYVAILLANT_COUNTRY="slovakia" # or germany, etc.
    export MYVAILLANT_BRAND="vaillant" # or saunier_duval, bulex, etc.
+   export LOCALE="sk" # or en (default)
+   export TZ="Europe/Bratislava"
    
    export SMTP_SERVER="smtp.gmail.com"
    export SMTP_PORT=587
@@ -48,6 +50,14 @@ A notifier application for myVAILLANT schedule changes.
    ```bash
    0 * * * * cd /path/to/vinotifier && docker-compose up >> vinotifier.log 2>&1
    ```
+
+## Localization
+
+Localization strings are stored in the `locales/` directory.
+- `en.json`: English (default)
+- `sk.json`: Slovak
+
+To add a new language, create a new JSON file (e.g., `de.json`) and set `LOCALE="de"` in your `.env` file.
 
 ## Troubleshooting
 

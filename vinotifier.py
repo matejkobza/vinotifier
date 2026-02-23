@@ -20,7 +20,58 @@ MYVAILLANT_PASS = os.getenv("MYVAILLANT_PASS")
 MYVAILLANT_COUNTRY = os.getenv("MYVAILLANT_COUNTRY", "germany")
 
 MYVAILLANT_BRAND = os.getenv("MYVAILLANT_BRAND", "vaillant")
+LOCALE = os.getenv("LOCALE", "en").lower()
 DATA_FILE = "last_schedule.json"
+LOCALES_DIR = "locales"
+
+# Localization Loading
+def load_strings():
+    locale_file = os.path.join(LOCALES_DIR, f"{LOCALE}.json")
+    default_file = os.path.join(LOCALES_DIR, "en.json")
+    
+    # Try loading selected locale
+    if os.path.exists(locale_file):
+        with open(locale_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+            
+    # Fallback to default (en)
+    if os.path.exists(default_file):
+        print(f"Locale {LOCALE} not found, falling back to en.")
+        with open(default_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+            
+    # Fallback to hardcoded English if files are missing
+    print("Warning: No locale files found!")
+    return {
+        "start_msg": "Starting Vinotifier...",
+        "no_recipients": "No recipients found.",
+        "email_sent": "Email sent to {}",
+        "email_fail": "Failed to send email: {}",
+        "missing_env": "Missing MYVAILLANT_USER or MYVAILLANT_PASS env vars",
+        "no_prev_schedule": "No previous schedule found. Saving current state.",
+        "changes_detected": "Changes detected!",
+        "changes_email_intro": "The following changes were detected in your heating schedule:\n\n",
+        "email_subject_change": "Heating Schedule Changed",
+        "no_changes": "No changes detected.",
+        "fetch_error": "Failed to fetch heater status or schedule: {}",
+        "email_subject_error": "Vinotifier Error: Heater Unavailable",
+        "new_zone": "New zone found: {name}",
+        "zone_removed": "Zone removed: {name}",
+        "schedule_changed": "Schedule changed for {name} on {day}.\nOld: {old}\nNew: {new}",
+        "days": {
+            "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday",
+            "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday", "sunday": "Sunday"
+        }
+    }
+
+STRINGS = load_strings()
+
+def t(key, **kwargs):
+    """Get localized string."""
+    template = STRINGS.get(key, key)
+    if isinstance(template, str):
+        return template.format(**kwargs)
+    return template
 
 def read_emails(csv_file='emails.csv'):
     emails = []
@@ -42,7 +93,7 @@ def read_emails(csv_file='emails.csv'):
 
 def send_email(subject, body, recipients):
     if not recipients:
-        print("No recipients found.")
+        print(t("no_recipients"))
         return
 
     msg = MIMEText(body)
@@ -57,13 +108,13 @@ def send_email(subject, body, recipients):
             server.ehlo()
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(SENDER_EMAIL, recipients, msg.as_string())
-        print(f"Email sent to {recipients}")
+        print(t("email_sent").format(recipients))
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(t("email_fail").format(e))
 
 async def get_current_schedule():
     if not MYVAILLANT_USER or not MYVAILLANT_PASS:
-        raise ValueError("Missing MYVAILLANT_USER or MYVAILLANT_PASS env vars")
+        raise ValueError(t("missing_env"))
 
     async with MyPyllantAPI(MYVAILLANT_USER, MYVAILLANT_PASS, MYVAILLANT_BRAND, MYVAILLANT_COUNTRY) as api:
         systems = []
@@ -87,8 +138,18 @@ async def get_current_schedule():
                             end = getattr(s, 'end_time', getattr(s, 'end', None))
                             setpoint = getattr(s, 'setpoint', None)
                             
-                            start_str = start.strftime("%H:%M") if hasattr(start, 'strftime') else str(start)
-                            end_str = end.strftime("%H:%M") if hasattr(end, 'strftime') else str(end)
+                            # Convert minutes to HH:MM if integer
+                            def format_time(val):
+                                if isinstance(val, int):
+                                    hours = val // 60
+                                    minutes = val % 60
+                                    return f"{hours:02d}:{minutes:02d}"
+                                elif hasattr(val, 'strftime'):
+                                    return val.strftime("%H:%M")
+                                return str(val)
+
+                            start_str = format_time(start)
+                            end_str = format_time(end)
                             
                             res.append({"start": start_str, "end": end_str, "setpoint": setpoint})
                         return res
@@ -121,7 +182,7 @@ def compare_schedules(old, new):
     # Check for new or changed zones
     for key, new_zone_data in new.items():
         if key not in old:
-            changes.append(f"New zone found: {new_zone_data['name']}")
+            changes.append(t("new_zone", name=new_zone_data['name']))
             continue
         
         old_zone_data = old[key]
@@ -131,17 +192,20 @@ def compare_schedules(old, new):
             new_day = new_zone_data.get(day)
             old_day = old_zone_data.get(day)
             if new_day != old_day:
-                changes.append(f"Schedule changed for {new_zone_data['name']} on {day}.\nOld: {old_day}\nNew: {new_day}")
+                # Localize day name
+                day_map = t("days")
+                day_name = day_map.get(day, day)
+                changes.append(t("schedule_changed", name=new_zone_data['name'], day=day_name, old=old_day, new=new_day))
     
     # Check for removed zones
     for key in old:
         if key not in new:
-            changes.append(f"Zone removed: {old[key]['name']}")
+            changes.append(t("zone_removed", name=old[key]['name']))
 
     return changes
 
 async def main():
-    print("Starting Vinotifier...")
+    print(t("start_msg"))
     recipients = read_emails()
     
     try:
@@ -149,26 +213,26 @@ async def main():
         last_schedule = load_last_schedule()
         
         if not last_schedule:
-            print("No previous schedule found. Saving current state.")
+            print(t("no_prev_schedule"))
             save_current_schedule(current_schedule)
             return
 
         changes = compare_schedules(last_schedule, current_schedule)
         
         if changes:
-            print("Changes detected!")
-            body = "The following changes were detected in your heating schedule:\n\n" + "\n\n".join(changes)
-            send_email("Heating Schedule Changed", body, recipients)
+            print(t("changes_detected"))
+            body = t("changes_email_intro") + "\n\n".join(changes)
+            send_email(t("email_subject_change"), body, recipients)
             save_current_schedule(current_schedule)
         else:
-            print("No changes detected.")
+            print(t("no_changes"))
             
     except Exception as e:
-        error_msg = f"Failed to fetch heater status or schedule: {str(e)}"
+        error_msg = t("fetch_error").format(str(e))
         print(error_msg)
         # Only send email if recipients are found
         if recipients:
-            send_email("Vinotifier Error: Heater Unavailable", error_msg, recipients)
+            send_email(t("email_subject_error"), error_msg, recipients)
 
 if __name__ == "__main__":
     asyncio.run(main())

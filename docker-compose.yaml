@@ -1,10 +1,12 @@
-version: '3.8'
-
 services:
   vinotifier:
     build: .
     volumes:
       - ./emails.csv:/app/emails.csv
       - ./last_schedule.json:/app/last_schedule.json
+      - ./vinotifier.py:/app/vinotifier.py
+      - ./locales:/app/locales
     env_file:
       - .env
+    environment:
+      - TZ=Europe/Bratislava

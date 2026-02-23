@@ -1,0 +1,26 @@
+{
+    "start_msg": "Spúšťam Vinotifier...",
+    "no_recipients": "Nenašli sa žiadni príjemcovia.",
+    "email_sent": "Email odoslaný na {}",
+    "email_fail": "Nepodarilo sa odoslať email: {}",
+    "missing_env": "Chýbajú premenné prostredia MYVAILLANT_USER alebo MYVAILLANT_PASS",
+    "no_prev_schedule": "Nenašiel sa predchádzajúci rozvrh. Ukladám aktuálny stav.",
+    "changes_detected": "Zistené zmeny!",
+    "changes_email_intro": "Vo vašom rozvrhu kúrenia boli zistené nasledujúce zmeny:\n\n",
+    "email_subject_change": "Zmena rozvrhu kúrenia",
+    "no_changes": "Neboli zistené žiadne zmeny.",
+    "fetch_error": "Nepodarilo sa získať stav kotla alebo rozvrh: {}",
+    "email_subject_error": "Chyba Vinotifier: Kotol nedostupný",
+    "new_zone": "Nájdená nová zóna: {name}",
+    "zone_removed": "Zóna odstránená: {name}",
+    "schedule_changed": "Zmena rozvrhu pre {name} v deň {day}.\nStarý: {old}\nNový: {new}",
+    "days": {
+        "monday": "Pondelok",
+        "tuesday": "Utorok",
+        "wednesday": "Streda",
+        "thursday": "Štvrtok",
+        "friday": "Piatok",
+        "saturday": "Sobota",
+        "sunday": "Nedeľa"
+    }
+}

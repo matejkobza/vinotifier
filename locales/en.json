@@ -1,0 +1,26 @@
+{
+    "start_msg": "Starting Vinotifier...",
+    "no_recipients": "No recipients found.",
+    "email_sent": "Email sent to {}",
+    "email_fail": "Failed to send email: {}",
+    "missing_env": "Missing MYVAILLANT_USER or MYVAILLANT_PASS env vars",
+    "no_prev_schedule": "No previous schedule found. Saving current state.",
+    "changes_detected": "Changes detected!",
+    "changes_email_intro": "The following changes were detected in your heating schedule:\n\n",
+    "email_subject_change": "Heating Schedule Changed",
+    "no_changes": "No changes detected.",
+    "fetch_error": "Failed to fetch heater status or schedule: {}",
+    "email_subject_error": "Vinotifier Error: Heater Unavailable",
+    "new_zone": "New zone found: {name}",
+    "zone_removed": "Zone removed: {name}",
+    "schedule_changed": "Schedule changed for {name} on {day}.\nOld: {old}\nNew: {new}",
+    "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+    }
+}
