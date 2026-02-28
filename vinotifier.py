@@ -69,9 +69,22 @@ STRINGS = load_strings()
 def t(key, **kwargs):
     """Get localized string."""
     template = STRINGS.get(key, key)
-    if isinstance(template, str):
+    if isinstance(template, str) and kwargs:
         return template.format(**kwargs)
     return template
+
+def format_schedule_list(schedule_list):
+    """Format a list of schedule items into localized strings."""
+    if not schedule_list:
+        return t("no_schedule")
+    
+    lines = []
+    for item in schedule_list:
+        lines.append(t("schedule_line", 
+                       start=item.get("start"), 
+                       end=item.get("end"), 
+                       setpoint=item.get("setpoint")))
+    return "\n".join(lines)
 
 def read_emails(csv_file='emails.csv'):
     emails = []
@@ -195,7 +208,16 @@ def compare_schedules(old, new):
                 # Localize day name
                 day_map = t("days")
                 day_name = day_map.get(day, day)
-                changes.append(t("schedule_changed", name=new_zone_data['name'], day=day_name, old=old_day, new=new_day))
+                
+                # Format schedule lists
+                formatted_old = format_schedule_list(old_day)
+                formatted_new = format_schedule_list(new_day)
+                
+                changes.append(t("schedule_changed", 
+                                 name=new_zone_data['name'], 
+                                 day=day_name, 
+                                 old=formatted_old, 
+                                 new=formatted_new))
     
     # Check for removed zones
     for key in old:

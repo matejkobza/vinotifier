@@ -13,7 +13,9 @@
     "email_subject_error": "Chyba Vinotifier: Kotol nedostupný",
     "new_zone": "Nájdená nová zóna: {name}",
     "zone_removed": "Zóna odstránená: {name}",
-    "schedule_changed": "Zmena rozvrhu pre {name} v deň {day}.\nStarý: {old}\nNový: {new}",
+    "schedule_changed": "Zmena rozvrhu pre {name} v deň {day}:\nStarý:\n{old}\nNový:\n{new}",
+    "schedule_line": "{start} - {end} (Teplota: {setpoint}°C)",
+    "no_schedule": "Žiadny rozvrh",
     "days": {
         "monday": "Pondelok",
         "tuesday": "Utorok",

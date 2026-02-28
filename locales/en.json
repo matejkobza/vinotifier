@@ -13,7 +13,9 @@
     "email_subject_error": "Vinotifier Error: Heater Unavailable",
     "new_zone": "New zone found: {name}",
     "zone_removed": "Zone removed: {name}",
-    "schedule_changed": "Schedule changed for {name} on {day}.\nOld: {old}\nNew: {new}",
+    "schedule_changed": "Schedule changed for {name} on {day}:\nOld:\n{old}\nNew:\n{new}",
+    "schedule_line": "{start} - {end} (Temp: {setpoint}°C)",
+    "no_schedule": "No schedule",
     "days": {
         "monday": "Monday",
         "tuesday": "Tuesday",
